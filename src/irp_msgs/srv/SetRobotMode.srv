@@ -1,0 +1,4 @@
+RobotMode mode
+---
+bool success
+string message

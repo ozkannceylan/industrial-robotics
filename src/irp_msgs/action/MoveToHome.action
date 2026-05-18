@@ -1,0 +1,14 @@
+# between 0.0-1.0
+float64 max_velocity_scaling
+
+---
+
+# Result: bittiğinde toplam ne kadar bekledi
+bool success
+string message 
+float64 final_error 
+
+---
+
+# Feedback: percentage 0-start, 1-finish
+float64 percent_complete

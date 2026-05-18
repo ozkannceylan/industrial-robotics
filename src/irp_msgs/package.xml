@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>irp_msgs</name>
+  <version>0.0.0</version>
+  <description>Custom IRP messages</description>
+  <maintainer email="ozkannceylan@gmail.com">ozkan</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Code generator: only needed while building this package. -->
+  <build_depend>rosidl_default_generators</build_depend>
+
+  <!-- Runtime libraries that generated code links against.
+       Anyone using our messages needs this at execution time. -->
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <!-- Tags this package as a rosidl interface package.
+       Must be a top-level child of <package>, NOT inside <export>. -->
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
