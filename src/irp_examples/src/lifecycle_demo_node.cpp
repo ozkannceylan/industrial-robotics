@@ -1,5 +1,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
+#include <std_msgs/msg/string.hpp>
+
+using namespace std::chrono_literals;
+
 
 // The lifecycle callback return type lives deep in a namespace.
 // Alias it locally so callback signatures stay readable.
@@ -25,6 +29,7 @@ public:
   CallbackReturn on_configure(const rclcpp_lifecycle::State &) override
   {
     RCLCPP_INFO(get_logger(), "on_configure: allocating resources");
+    pub_ = create_publisher<std_msgs::msg::String>("greeting", 10);
     return CallbackReturn::SUCCESS;
   }
 
@@ -33,6 +38,12 @@ public:
   CallbackReturn on_activate(const rclcpp_lifecycle::State &) override
   {
     RCLCPP_INFO(get_logger(), "on_activate: now running");
+    pub_->on_activate();
+    timer_ = create_wall_timer(1s, [this]() {
+      auto msg = std_msgs::msg::String();
+      msg.data = get_parameter("greeting").as_string() + " " + std::to_string(count_++);
+      pub_->publish(msg);
+    });
     return CallbackReturn::SUCCESS;
   }
 
@@ -41,6 +52,8 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State &) override
   {
     RCLCPP_INFO(get_logger(), "on_deactivate: paused");
+    timer_.reset();
+    pub_->on_deactivate();
     return CallbackReturn::SUCCESS;
   }
 
@@ -49,6 +62,7 @@ public:
   CallbackReturn on_cleanup(const rclcpp_lifecycle::State &) override
   {
     RCLCPP_INFO(get_logger(), "on_cleanup: resources released");
+    pub_.reset();
     return CallbackReturn::SUCCESS;
   }
 
@@ -57,8 +71,17 @@ public:
   CallbackReturn on_shutdown(const rclcpp_lifecycle::State &) override
   {
     RCLCPP_INFO(get_logger(), "on_shutdown: terminating");
+    timer_.reset();
+    pub_.reset();
     return CallbackReturn::SUCCESS;
   }
+
+private:
+  rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>::SharedPtr pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  size_t count_ = 0;
+
+
 };
 
 int main(int argc, char ** argv)

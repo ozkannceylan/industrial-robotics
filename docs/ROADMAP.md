@@ -39,8 +39,8 @@
 ### P0 — ROS2 fluency 🟡
 
 - [x] `irp_msgs` paketi: en az 1 custom message, 1 service, 1 action
-- [ ] Lifecycle node örneği (configure → activate → deactivate)
-- [ ] Layered launch sistemi (YAML config + Python composition)
+- [x] Lifecycle node örneği (configure → activate → deactivate)
+- [x] Layered launch sistemi (YAML config + Python composition)
 - [ ] En az 3 farklı QoS profilinin farkını gösteren mini demo
 - [ ] UR5e xacro sıfırdan yazıldı (vendor URDF okundu, kopyalanmadı)
 - [ ] rviz'de doğru link/joint hiyerarşisi görünüyor
@@ -151,6 +151,8 @@
 | ---------- | --- | ---------------------------------- | ------------------------------------------------ |
 | 2026-05-15 | P0  | Environment + repo skeleton        | Ubuntu 24.04, ROS2 Jazzy, Gazebo Harmonic kurulu |
 | 2026-05-15 | P0  | `irp_msgs` package                 | RobotMode.msg + SetRobotMode.srv + MoveToHome.action; rosidl pipeline kavrandı |
+| 2026-05-18 | P0  | Lifecycle node demo                | `irp_examples/lifecycle_demo_node.cpp`; `LifecyclePublisher` + WallTimer; create/activate/deactivate/cleanup symmetric tear-up/down; ros2 lifecycle CLI ile manuel test. Notlar: research/industrial-robotics/p0-lifecycle-node.md |
+| 2026-05-18 | P0  | Layered launch + YAML config       | `irp_examples/launch/lifecycle_demo.launch.py` + `config/lifecycle_demo.yaml`; `LifecycleNode` action + `OnStateTransition` event handler ile otomatik configure→activate; tek `ros2 launch` komutu mesaj akışı başlatıyor. Notlar: research/industrial-robotics/p0-layered-launch.md |
 
 ---
 

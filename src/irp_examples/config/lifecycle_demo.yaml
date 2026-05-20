@@ -1,0 +1,3 @@
+lifecycle_demo:
+  ros__parameters:
+    greeting: "merhaba"
