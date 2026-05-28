@@ -15,6 +15,7 @@ find_package(std_msgs REQUIRED)
 # Declare a C++ executable target.
 # Source file: src/lifecycle_demo_node.cpp (path relative to this CMakeLists).
 add_executable(lifecycle_demo src/lifecycle_demo_node.cpp)
+add_executable(qos_demo src/qos_demo_node.cpp)
 
 # Link the executable against ROS2 packages we depend on.
 # ament_target_dependencies handles include dirs + linker flags transitively.
@@ -25,9 +26,14 @@ ament_target_dependencies(lifecycle_demo
   std_msgs
 )
 
+ament_target_dependencies(qos_demo
+  rclcpp
+  std_msgs
+)
+
 # Install the binary so `ros2 run irp_examples lifecycle_demo` can find it.
 # Convention: package executables go under lib/<package_name>/.
-install(TARGETS lifecycle_demo
+install(TARGETS lifecycle_demo qos_demo
   DESTINATION lib/${PROJECT_NAME}
 )
 # Install launch files and config so `ros2 launch` and parameter loading can find them.

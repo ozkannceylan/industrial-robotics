@@ -1,0 +1,5 @@
+qos_demo:                       # node ismi (cpp'deki Node("qos_demo") ile birebir)
+  ros__parameters:
+    sensor_period_ms: 10
+    command_period_ms: 200
+    late_join_delay_s: 3
