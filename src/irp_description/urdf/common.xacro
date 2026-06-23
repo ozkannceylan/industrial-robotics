@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+     common.xacro — reusable xacro macros.
+
+     Included by ur5e.urdf.xacro. Holds the repeated boilerplate so the main
+     file stays about *structure* (which link connects to which), not geometry.
+     This is the whole point of xacro: write the pattern once, reuse it.
+     ========================================================================= -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- cylinder_link: a link whose visual+collision is a cylinder of <length>,
+       extending along the link's +Z axis with its base at the link origin.
+       Placing the base at the origin (origin z = length/2) means the NEXT
+       joint can sit at "z = length" — links stack cleanly along the chain. -->
+  <xacro:macro name="cylinder_link" params="name radius length mass material">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length}"/>
+        </geometry>
+        <material name="${material}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length}"/>
+        </geometry>
+      </collision>
+      <xacro:solid_cylinder_inertial radius="${radius}" length="${length}" mass="${mass}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- solid_cylinder_inertial: inertia tensor of a homogeneous solid cylinder
+       about its centroid, Z being the symmetry axis. Gazebo needs this for
+       dynamics; RViz ignores it. Formula is standard rigid-body inertia. -->
+  <xacro:macro name="solid_cylinder_inertial" params="radius length mass">
+    <inertial>
+      <origin xyz="0 0 ${length/2}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${(1.0/12.0) * mass * (3.0*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
+        iyy="${(1.0/12.0) * mass * (3.0*radius*radius + length*length)}" iyz="0.0"
+        izz="${0.5 * mass * radius*radius}"/>
+    </inertial>
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+     ur5e.urdf.xacro — UR5e manipulator description, written from scratch.
+
+     NOT copied from the official `ur_description`. Choices made deliberately:
+       * Segment LENGTHS are the UR5e nominal datasheet values (d1, a2, a3, ...).
+       * Joint AXES follow the real UR5e pattern (Z, Y, Y, Y, Z, Y).
+       * Visuals are primitive cylinders/boxes (no vendor meshes) — the goal is
+         a kinematically-honest, recognizable arm for learning + TF/RViz, not a
+         photorealistic model.
+       * Links stack along +Z so joint_state_publisher_gui sliders move them in
+         an intuitive way.
+
+     This file defines the KINEMATIC TREE. robot_state_publisher reads it and
+     publishes the corresponding transforms on /tf (movable joints) and
+     /tf_static (fixed joints). That is the bridge from URDF to TF2.
+     ========================================================================= -->
+<robot name="ur5e" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Pull in the reusable macros (cylinder_link, solid_cylinder_inertial). -->
+  <xacro:include filename="$(find irp_description)/urdf/common.xacro"/>
+
+  <!-- ======================= PARAMETERS ======================= -->
+  <!-- UR5e nominal kinematic segment lengths [m] (datasheet values). -->
+  <xacro:property name="d1" value="0.1625"/>  <!-- base_link  -> shoulder      -->
+  <xacro:property name="a2" value="0.425"/>   <!-- upper arm length            -->
+  <xacro:property name="a3" value="0.3922"/>  <!-- forearm length              -->
+  <xacro:property name="d5" value="0.0997"/>  <!-- wrist_1   -> wrist_2        -->
+  <xacro:property name="d6" value="0.0996"/>  <!-- wrist_2   -> wrist_3        -->
+
+  <!-- Cosmetic radii for the cylinder visuals. -->
+  <xacro:property name="r_arm"   value="0.045"/>
+  <xacro:property name="r_wrist" value="0.038"/>
+  <xacro:property name="shoulder_len" value="0.10"/>
+  <xacro:property name="wrist3_len"   value="0.05"/>
+
+  <!-- Nominal joint limits: position ±2π, plus velocity/effort caps. -->
+  <xacro:property name="pos_limit" value="${2*pi}"/>
+  <xacro:property name="vel_limit" value="3.15"/>
+  <xacro:property name="eff_limit" value="150.0"/>
+
+  <!-- ======================= MATERIALS ======================= -->
+  <material name="ur_blue">   <color rgba="0.10 0.30 0.70 1.0"/> </material>
+  <material name="ur_grey">   <color rgba="0.60 0.60 0.60 1.0"/> </material>
+  <material name="sensor_red"><color rgba="0.85 0.10 0.10 1.0"/> </material>
+
+  <!-- ======================= LINKS ======================= -->
+
+  <!-- base_link: world-fixed root of BOTH the kinematic tree and the TF tree. -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.06" length="0.04"/></geometry>
+      <material name="ur_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.06" length="0.04"/></geometry>
+    </collision>
+    <xacro:solid_cylinder_inertial radius="0.06" length="0.04" mass="2.0"/>
+  </link>
+
+  <!-- Arm links, built from the reusable macro (this is xacro paying off). -->
+  <xacro:cylinder_link name="shoulder_link"  radius="${r_arm}"   length="${shoulder_len}" mass="3.00" material="ur_blue"/>
+  <xacro:cylinder_link name="upper_arm_link" radius="${r_arm}"   length="${a2}"           mass="8.00" material="ur_blue"/>
+  <xacro:cylinder_link name="forearm_link"   radius="${r_arm}"   length="${a3}"           mass="2.50" material="ur_blue"/>
+  <xacro:cylinder_link name="wrist_1_link"   radius="${r_wrist}" length="${d5}"           mass="1.30" material="ur_grey"/>
+  <xacro:cylinder_link name="wrist_2_link"   radius="${r_wrist}" length="${d6}"           mass="1.30" material="ur_grey"/>
+  <xacro:cylinder_link name="wrist_3_link"   radius="${r_wrist}" length="${wrist3_len}"   mass="0.35" material="ur_grey"/>
+
+  <!-- tool0: UR convention for the tool flange frame. Zero-size = pure frame. -->
+  <link name="tool0"/>
+
+  <!-- camera_link: a wrist-mounted sensor. Attached by a FIXED joint below,
+       so it only ever shows up on /tf_static (static transform). -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.03 0.05 0.03"/></geometry>
+      <material name="sensor_red"/>
+    </visual>
+  </link>
+
+  <!-- ======================= JOINTS ======================= -->
+  <!-- UR5e revolute axis pattern: Z, Y, Y, Y, Z, Y. -->
+
+  <joint name="shoulder_pan_joint" type="revolute">
+    <parent link="base_link"/>
+    <child  link="shoulder_link"/>
+    <origin xyz="0 0 ${d1}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <joint name="shoulder_lift_joint" type="revolute">
+    <parent link="shoulder_link"/>
+    <child  link="upper_arm_link"/>
+    <origin xyz="0 0 ${shoulder_len}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <joint name="elbow_joint" type="revolute">
+    <parent link="upper_arm_link"/>
+    <child  link="forearm_link"/>
+    <origin xyz="0 0 ${a2}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <joint name="wrist_1_joint" type="revolute">
+    <parent link="forearm_link"/>
+    <child  link="wrist_1_link"/>
+    <origin xyz="0 0 ${a3}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <joint name="wrist_2_joint" type="revolute">
+    <parent link="wrist_1_link"/>
+    <child  link="wrist_2_link"/>
+    <origin xyz="0 0 ${d5}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <joint name="wrist_3_joint" type="revolute">
+    <parent link="wrist_2_link"/>
+    <child  link="wrist_3_link"/>
+    <origin xyz="0 0 ${d6}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pos_limit}" upper="${pos_limit}" velocity="${vel_limit}" effort="${eff_limit}"/>
+  </joint>
+
+  <!-- Fixed joint: flange frame. Fixed => goes on /tf_static, not /tf. -->
+  <joint name="tool0_fixed_joint" type="fixed">
+    <parent link="wrist_3_link"/>
+    <child  link="tool0"/>
+    <origin xyz="0 0 ${wrist3_len}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- STATIC sensor mount. The translation+rotation here is exactly the kind of
+       "sensor offset from base/tool" that, in an AV, lives on /tf_static. -->
+  <joint name="camera_mount_joint" type="fixed">
+    <parent link="tool0"/>
+    <child  link="camera_link"/>
+    <origin xyz="0.05 0 0.02" rpy="0 ${-pi/2} 0"/>
+  </joint>
+
+</robot>

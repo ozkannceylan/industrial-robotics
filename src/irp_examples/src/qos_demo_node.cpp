@@ -29,29 +29,21 @@ public:
                         .best_effort()
                         .durability_volatile();
 
-    // TODO: sensor_pub_ olustur. create_publisher<StringMsg>("sensor", sensor_qos)
+
     sensor_pub_ = create_publisher<StringMsg>("sensor", sensor_qos);
 
 
-    // TODO: sensor_sub_ olustur. Lambda callback icinde sensor_rx_count_++ yap.
-    //   Signature ipucu:
-    //   [this](const StringMsg::SharedPtr msg) { ... }
+
     sensor_sub_ = create_subscription<StringMsg>("sensor", sensor_qos,
             [this](const StringMsg::SharedPtr) { sensor_rx_count_++; });
 
-    // TODO: sensor_timer_ olustur (10ms periyot). Lambda icinde:
-    //   StringMsg m;
-    //   m.data = "sensor#" + std::to_string(sensor_tx_count_++);
-    //   sensor_pub_->publish(m);   
+
     sensor_timer_ = create_wall_timer(10ms, [this]() {
     StringMsg m;
     m.data = "sensor#" + std::to_string(sensor_tx_count_++);
     sensor_pub_->publish(m);
     });
 
-    // ---- 2) COMMAND topic -------------------------------------------------
-    // TODO: command_qos = rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile();
-    // TODO: command_pub_, command_sub_, command_timer_ (200ms).
     auto command_qos = rclcpp::QoS(rclcpp::KeepLast(10))
                         .reliable()
                         .durability_volatile();

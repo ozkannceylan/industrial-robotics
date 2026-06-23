@@ -28,7 +28,7 @@
 | P5  | Perception                         | Integration  | ⚪ Todo        | Hand-eye calibration + AprilTag visual servoing                  |
 | P6  | Force-controlled tasks             | Integration  | ⚪ Todo        | Peg-in-hole hybrid force-position controller ile başarılı        |
 | P7  | Task layer                         | Integration  | ⚪ Todo        | BT + error injection ile recovery senaryoları                    |
-| P8  | Multi-robot generalization         | Production   | ⚪ Todo        | UR5e → Franka swap: sadece description + hardware değişti        |
+| P8  | Multi-robot generalization         | Production   | ⚪ Todo        | UR5e → Franka swap: sadece description + hardware değişti         |
 | P9  | Production hardening               | Production   | ⚪ Todo        | PREEMPT_RT + CI + tests + Foxglove dashboard                     |
 | P10 | Capstone                           | Production   | ⚪ Todo        | Multi-step task + tek launch arg ile iki robotta çalışır         |
 
@@ -41,9 +41,9 @@
 - [x] `irp_msgs` paketi: en az 1 custom message, 1 service, 1 action
 - [x] Lifecycle node örneği (configure → activate → deactivate)
 - [x] Layered launch sistemi (YAML config + Python composition)
-- [ ] En az 3 farklı QoS profilinin farkını gösteren mini demo
-- [ ] UR5e xacro sıfırdan yazıldı (vendor URDF okundu, kopyalanmadı)
-- [ ] rviz'de doğru link/joint hiyerarşisi görünüyor
+- [x] En az 3 farklı QoS profilinin farkını gösteren mini demo
+- [x] UR5e xacro sıfırdan yazıldı (vendor URDF okundu, kopyalanmadı)
+- [x] rviz'de doğru link/joint hiyerarşisi görünüyor — display.launch.py, RobotModel+TF Status: Ok, 6 joint slider'la doğrulandı
 - [ ] Anti-pattern check: hiçbir dosya tutorial'dan birebir kopyalanmadı
 
 **Mimari kararlar (P0'da netleşmesi gerekenler):**
@@ -151,8 +151,11 @@
 | ---------- | --- | ---------------------------------- | ------------------------------------------------ |
 | 2026-05-15 | P0  | Environment + repo skeleton        | Ubuntu 24.04, ROS2 Jazzy, Gazebo Harmonic kurulu |
 | 2026-05-15 | P0  | `irp_msgs` package                 | RobotMode.msg + SetRobotMode.srv + MoveToHome.action; rosidl pipeline kavrandı |
-| 2026-05-18 | P0  | Lifecycle node demo                | `irp_examples/lifecycle_demo_node.cpp`; `LifecyclePublisher` + WallTimer; create/activate/deactivate/cleanup symmetric tear-up/down; ros2 lifecycle CLI ile manuel test. Notlar: research/industrial-robotics/p0-lifecycle-node.md |
-| 2026-05-18 | P0  | Layered launch + YAML config       | `irp_examples/launch/lifecycle_demo.launch.py` + `config/lifecycle_demo.yaml`; `LifecycleNode` action + `OnStateTransition` event handler ile otomatik configure→activate; tek `ros2 launch` komutu mesaj akışı başlatıyor. Notlar: research/industrial-robotics/p0-layered-launch.md |
+| 2026-05-18 | P0  | Lifecycle node demo                | `irp_examples/lifecycle_demo_node.cpp`; `LifecyclePublisher` + WallTimer; create/activate/deactivate/cleanup symmetric tear-up/down; ros2 lifecycle CLI ile manuel test. |
+| 2026-05-18 | P0  | Layered launch + YAML config       | `irp_examples/launch/lifecycle_demo.launch.py` + `config/lifecycle_demo.yaml`; `LifecycleNode` action + `OnStateTransition` event handler ile otomatik configure→activate; tek `ros2 launch` komutu mesaj akışı başlatıyor. |
+| 2026-06-09 | P0  | QoS demo (3 profil + mismatch + late-join) | `irp_examples/src/qos_demo_node.cpp`: sensor (BestEffort/KL1/Volatile), command (Reliable/KL10/Volatile), config (Reliable/KL1/TransientLocal). DDS incompatibility uyarısı `mismatch_rx=0`, late subscriber `config#1`'i 3s sonra aldı. Lambda capture (value vs ref) + QoS compat kuralı (pub ≥ sub) içselleştirildi. |
+| 2026-06-22 | P0  | UR5e xacro + TF2 listener demo | Yeni paket `irp_description` (`urdf/ur5e.urdf.xacro` + `common.xacro` macro'lar + `display.launch.py` + `ur5e.rviz`): 9 link / 6 revolute + 2 fixed, UR5e datasheet segment uzunlukları, axis pattern Z-Y-Y-Y-Z-Y, primitive geometry (mesh yok), `camera_link` fixed joint → /tf_static. `irp_examples/tf2_listener_demo_node.cpp`: Buffer+TransformListener+lookupTransform+try/catch. `ur_description`'dan kopyalanmadı, sıfırdan. `colcon build` + `check_urdf` geçti; RViz'de görsel doğrulandı. Doküman: `docs/tr/tf2_urdf_structure.md`. |
+| 2026-06-23 | P0  | C++ patterns: safety gate + static TF broadcaster | `irp_examples/command_safety_gate_node.cpp`: topic(/cmd_vel_in)+service(/reset Trigger)+param(max_speed, negatif reddi)+RAII `lock_guard`/mutex tek node'da; smart_ptr/const/bind-vs-lambda/`std::clamp`. `irp_examples/static_mount_broadcaster_node.cpp`: programatik `StaticTransformBroadcaster` base_link→lidar_link, RPY→quaternion. `colcon build` uyarısız; runtime smoke-test geçti (param reddi + tf2_echo [1.5,0,1.8]). Doküman: `docs/tr/cpp_patterns.md`. |
 
 ---
 

@@ -22,7 +22,7 @@ yol gösteren bir hocadır.
   derse: kod kalitesi, idiomatik kullanım, anti-pattern'ler için geri bildirim.
 - **Takıldığında ipucu ver.** Çözümü tamamen söyleme; doğru yöne yönlendir.
   Önce sor: "Şu ana kadar ne denedin?"
-- **Roadmap'i takip et.** [`docs/ROADMAP.md`](docs/ROADMAP.md) tek source-of-truth.
+- **Roadmap'i takip et.** [`docs/tr/ROADMAP.md`](docs/tr/ROADMAP.md) tek source-of-truth.
   Sıradaki adım = roadmap'in tamamlanmamış ilk checkbox'ı (veya bağımlılığı).
 - **Progress log'u güncelle.** Bir milestone tamamlandığında ROADMAP'in
   Progress Log tablosuna satır eklemeyi hatırlat (veya kullanıcı isterse ekle).
@@ -51,7 +51,7 @@ kullanıcı "ben yazayım" derse yazar, "tipik bir CMakeLists nasıl başlar" de
 
 ## Çalışma Akışı
 
-1. **Oturum açılışı:** [`docs/ROADMAP.md`](docs/ROADMAP.md) → mevcut faz +
+1. **Oturum açılışı:** [`docs/tr/ROADMAP.md`](docs/tr/ROADMAP.md) → mevcut faz +
    tamamlanmamış ilk madde nedir, oradan başla.
 2. **Sıradaki adım brief'i:**
    - **Ne:** Bir cümlede ne yapılacak.
@@ -78,6 +78,6 @@ kullanıcı "ben yazayım" derse yazar, "tipik bir CMakeLists nasıl başlar" de
 
 ## Referanslar
 
-- [`docs/ROADMAP.md`](docs/ROADMAP.md) — faz takibi, exit criteria, progress log
+- [`docs/tr/ROADMAP.md`](docs/tr/ROADMAP.md) — faz takibi, exit criteria, progress log
 - `docs/PLAN.md` — *(henüz yok)* tam plan ve mimari prensipler
 - `docs/decisions/` — *(henüz yok)* ADR'lar mimari kararlar için
